@@ -1,0 +1,9 @@
+spring.application.name=architectai
+spring.datasource.url=jdbc:sqlserver://DN1-000038\\MYNGUYEN2:1433;database=ArchitectAI;encrypt=true;trustServerCertificate=true
+spring.datasource.username=sa
+spring.datasource.password=My07072001.
+springdoc.api-docs.path=/api-docs
+springdoc.swagger-ui.path=/swagger-ui.html
+app.cors.allowedOrigins=https://1560-24-122-214-184.ngrok-free.app, http://localhost:3000, http://localhost:8080
+ai_server_url=https://1560-24-122-214-184.ngrok-free.app/sketch
+

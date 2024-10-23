@@ -3,15 +3,15 @@ package com.example.architectai.controller;
 import com.example.architectai.dto.SignInDto;
 import com.example.architectai.dto.SignUpDto;
 import com.example.architectai.entity.ApplicationUser;
+import com.example.architectai.entity.UserTransaction;
+import com.example.architectai.entity.UserUsage;
 import com.example.architectai.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,5 +32,15 @@ public class AuthController {
     @GetMapping("/users")
     public ResponseEntity<List<ApplicationUser>> getUsers() {
         return ResponseEntity.ok(authService.getAllUsers());
+    }
+
+    @GetMapping("/users/{userId}/usages")
+    public ResponseEntity<UserUsage> getUsages(@PathVariable(value = "userId") UUID userId) {
+        return ResponseEntity.ok(authService.getUserUsage(userId));
+    }
+
+    @GetMapping("/users/{userId}/transaction")
+    public ResponseEntity<List<UserTransaction>> getTransactions(@PathVariable(value = "userId") UUID userId) {
+        return ResponseEntity.ok(authService.getUserTransactions(userId));
     }
 }

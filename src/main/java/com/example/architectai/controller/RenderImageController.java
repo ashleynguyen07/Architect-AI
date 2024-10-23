@@ -5,6 +5,7 @@ import com.example.architectai.entity.RenderImageInfo;
 import com.example.architectai.service.RenderImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,5 +38,10 @@ public class RenderImageController {
                 .guidanceScale(guidanceScale)
                 .build();
         return ResponseEntity.ok(renderImageService.renderImage(requestDto, image));
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportImage(@RequestParam(value = "file-name") String name) throws IOException {
+        return ResponseEntity.ok(renderImageService.exportImage(name));
     }
 }

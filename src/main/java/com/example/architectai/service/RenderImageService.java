@@ -9,4 +9,6 @@ import java.io.IOException;
 public interface RenderImageService {
 
     RenderImageInfo renderImage(RenderImageRequestDto requestDto, MultipartFile image) throws IOException;
+
+    byte[] exportImage(String name) throws IOException;
 }

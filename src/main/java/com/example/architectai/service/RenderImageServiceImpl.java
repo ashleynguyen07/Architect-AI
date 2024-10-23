@@ -19,6 +19,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,6 +28,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Base64;
 import java.util.Objects;
+import java.util.zip.Inflater;
 
 @Service
 @RequiredArgsConstructor
@@ -99,9 +101,32 @@ public class RenderImageServiceImpl implements RenderImageService {
                 .width(requestDto.getWidth())
                 .height(requestDto.getHeight())
                 .outputImage(outputFileName)
+                .imageData(decodedBytes)
                 .build();
 
         renderImageInfoRepository.save(renderImageInfo);
         return renderImageInfo;
+    }
+
+    @Override
+    public byte[] exportImage(String name) throws IOException {
+        RenderImageInfo renderImageInfo = renderImageInfoRepository.findByOutputImage(name);
+        return decompressImage(renderImageInfo.getImageData());
+    }
+
+    public static byte[] decompressImage(byte[] data) {
+        Inflater inflater = new Inflater();
+        inflater.setInput(data);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
+        byte[] tmp = new byte[4*1024];
+        try {
+            while (!inflater.finished()) {
+                int count = inflater.inflate(tmp);
+                outputStream.write(tmp, 0, count);
+            }
+            outputStream.close();
+        } catch (Exception exception) {
+        }
+        return outputStream.toByteArray();
     }
 }

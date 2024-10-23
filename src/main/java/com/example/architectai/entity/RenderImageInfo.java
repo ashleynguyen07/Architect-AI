@@ -48,4 +48,7 @@ public class RenderImageInfo {
 
     @Column(name = "output_image")
     private String outputImage;
+
+    @Column(name = "image_data")
+    private byte[] imageData;
 }

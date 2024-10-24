@@ -90,7 +90,7 @@ public class RenderImageServiceImpl implements RenderImageService {
         byte[] decodedBytes = Base64.getDecoder().decode(renderImageResponseDto.getImage());
 
         // Create a new file name for the output image
-        String outputFileName = "rendered_" + image.getOriginalFilename(); // You might want to customize this
+        String outputFileName = path + "rendered_" + image.getOriginalFilename(); // You might want to customize this
 
         // Write the decoded bytes to the new file
         File outputFile = new File(path.toFile(), outputFileName);

@@ -10,6 +10,7 @@ import com.paypal.base.rest.PayPalRESTException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.view.RedirectView;
 
 import java.io.IOException;
 
@@ -71,9 +71,9 @@ public class RenderImageController {
     }
 
     @PostMapping("/paypal")
-    public RedirectView createPayment() {
+    public ResponseEntity<?> createPayment() {
         try {
-            String cancleUrl = domain + "/paypal/cancel";
+            String cancelUrl = domain + "/paypal/cancel";
             String successUrl = domain + "/paypal/success";
             Payment payment = paypalService.createPayment(
                     0.01,
@@ -81,41 +81,43 @@ public class RenderImageController {
                     "paypal",
                     "sale",
                     "This is a test",
-                    cancleUrl,
+                    cancelUrl,
                     successUrl
             );
             for (Links link : payment.getLinks()) {
                 if (link.getRel().equals("approval_url")) {
-                    return new RedirectView(link.getHref());
+                    return ResponseEntity.ok(link.getHref());
                 }
             }
         } catch (PayPalRESTException e) {
             e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating payment");
         }
-        return new RedirectView("/payment/error");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Approval URL not found");
     }
 
     @GetMapping("/paypal/success")
-    public String success(@RequestParam("paymentId") String paymentId,
-                          @RequestParam("PayerID") String payerId) {
+    public ResponseEntity<?> success(@RequestParam("paymentId") String paymentId,
+                                     @RequestParam("PayerID") String payerId) {
         try {
             Payment payment = paypalService.executePayment(paymentId, payerId);
             if (payment.getState().equals("approved")) {
-                return "success";
+                return ResponseEntity.ok("Payment successful");
             }
         } catch (PayPalRESTException e) {
             e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error executing payment");
         }
-        return "success";
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Payment not approved");
     }
 
     @GetMapping("/paypal/cancel")
-    public String cancel() {
-        return "cancel";
+    public ResponseEntity<?> cancel() {
+        return ResponseEntity.ok("Payment cancelled");
     }
 
     @GetMapping("/paypal/error")
-    public String error() {
-        return "error";
+    public ResponseEntity<?> error() {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Payment error");
     }
 }

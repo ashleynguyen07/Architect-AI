@@ -2,9 +2,12 @@ package com.example.architectai.service;
 
 import com.example.architectai.dto.SignInDto;
 import com.example.architectai.dto.SignUpDto;
+import com.example.architectai.dto.UserTransactionRequestDto;
+import com.example.architectai.dto.UserUsageRequestDto;
 import com.example.architectai.entity.ApplicationUser;
 import com.example.architectai.entity.UserTransaction;
 import com.example.architectai.entity.UserUsage;
+import com.fasterxml.jackson.databind.JsonMappingException;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,5 +22,17 @@ public interface AuthService {
 
     UserUsage getUserUsage(UUID userId);
 
+    UserUsage createUserUsage(UUID userId, UserUsageRequestDto userUsageRequestDto) throws JsonMappingException;
+
+    UserUsage updateUserUsage(UUID userId, UUID userUsageId, UserUsageRequestDto userUsageRequestDto) throws JsonMappingException;
+
+    void deleteUserUsage(UUID userId, UUID userUsageId);
+
     List<UserTransaction> getUserTransactions(UUID userId);
+
+    UserTransaction createUserTransaction(UUID userId, UserTransactionRequestDto userTransactionRequestDto) throws JsonMappingException;
+
+    UserTransaction updateUserTransaction(UUID userId, UUID userTransactionId, UserTransactionRequestDto userTransactionRequestDto) throws JsonMappingException;
+
+    void deleteUserTransaction(UUID userId, UUID userTransactionId);
 }

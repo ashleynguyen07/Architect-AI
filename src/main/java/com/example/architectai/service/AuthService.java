@@ -5,6 +5,7 @@ import com.example.architectai.dto.SignUpDto;
 import com.example.architectai.dto.UserTransactionRequestDto;
 import com.example.architectai.dto.UserUsageRequestDto;
 import com.example.architectai.entity.ApplicationUser;
+import com.example.architectai.entity.Storage;
 import com.example.architectai.entity.UserTransaction;
 import com.example.architectai.entity.UserUsage;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -35,4 +36,18 @@ public interface AuthService {
     UserTransaction updateUserTransaction(UUID userId, UUID userTransactionId, UserTransactionRequestDto userTransactionRequestDto) throws JsonMappingException;
 
     void deleteUserTransaction(UUID userId, UUID userTransactionId);
+
+    String write(Storage storage);
+
+    String update(Storage storage);
+
+    byte[] read(Storage storage);
+
+    List<String> listFiles(Storage storage);
+
+    void delete(Storage storage);
+
+    void createContainer();
+
+    void deleteContainer();
 }

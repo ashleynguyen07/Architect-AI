@@ -1,10 +1,16 @@
 package com.example.architectai.service;
 
+import com.azure.core.http.rest.PagedIterable;
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.models.BlobItem;
 import com.example.architectai.dto.SignInDto;
 import com.example.architectai.dto.SignUpDto;
 import com.example.architectai.dto.UserTransactionRequestDto;
 import com.example.architectai.dto.UserUsageRequestDto;
 import com.example.architectai.entity.ApplicationUser;
+import com.example.architectai.entity.Storage;
 import com.example.architectai.entity.UserTransaction;
 import com.example.architectai.entity.UserUsage;
 import com.example.architectai.repository.ApplicationUserRepository;
@@ -13,11 +19,14 @@ import com.example.architectai.repository.UserUsageRepository;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,6 +38,11 @@ public class AuthServiceImpl implements AuthService {
     private final UserUsageRepository userUsageRepository;
     private final UserTransactionRepository userTransactionRepository;
     private final ObjectMapper objectMapper;
+    private final BlobServiceClient blobServiceClient;
+    private final BlobContainerClient blobContainerClient;
+
+    @Value("${azure.storage.container-name}")
+    private String containerName;
 
     @Override
     public ApplicationUser signUp(SignUpDto signUpDto) {
@@ -122,6 +136,63 @@ public class AuthServiceImpl implements AuthService {
     public void deleteUserTransaction(UUID userId, UUID userTransactionId) {
         UserTransaction userTransaction = userTransactionRepository.findById(userTransactionId).orElseThrow(() -> new IllegalStateException("User transaction not found"));
         userTransactionRepository.delete(userTransaction);
+    }
+
+    @Override
+    public String write(Storage storage) {
+        BlobClient blobClient = blobContainerClient.getBlobClient(getPath(storage));
+        blobClient.upload(storage.getInputStream(),false);
+        return getPath(storage);
+    }
+
+    @Override
+    public String update(Storage storage) {
+        BlobClient blobClient = blobContainerClient.getBlobClient(getPath(storage));
+        blobClient.upload(storage.getInputStream(),true);
+        return getPath(storage);
+    }
+
+    @Override
+    public byte[] read(Storage storage) {
+        BlobClient blobClient = blobContainerClient.getBlobClient(getPath(storage));
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        blobClient.download(outputStream);
+        return outputStream.toByteArray();
+    }
+
+    @Override
+    public List<String> listFiles(Storage storage) {
+        PagedIterable<BlobItem> blobItems = blobContainerClient.listBlobsByHierarchy(storage.getPath() + "/");
+        List<String> blobs = new ArrayList<>();
+        for (BlobItem blobItem : blobItems) {
+            blobs.add(blobItem.getName());
+        }
+        return blobs;
+    }
+
+    @Override
+    public void delete(Storage storage) {
+        String path = getPath(storage);
+        BlobClient blobClient = blobContainerClient.getBlobClient(path);
+        blobClient.delete();
+    }
+
+    private String getPath(Storage storage) {
+        if (StringUtils.isNoneBlank(storage.getPath()) &&
+                StringUtils.isNoneBlank(storage.getFileName())) {
+            return storage.getPath() + "/" + storage.getFileName();
+        }
+        return null;
+    }
+
+    @Override
+    public void createContainer() {
+        blobServiceClient.createBlobContainer(containerName);
+    }
+
+    @Override
+    public void deleteContainer() {
+        blobServiceClient.deleteBlobContainer(containerName);
     }
 
 }

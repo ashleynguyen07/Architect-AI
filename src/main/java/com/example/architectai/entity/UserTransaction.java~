@@ -1,0 +1,21 @@
+package com.example.architectai.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.UUID;
+
+@Entity
+@Table(name = "user_transaction")
+@Builder
+@RequiredArgsConstructor
+@Getter
+@Setter
+@AllArgsConstructor
+public class UserTransaction {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", nullable = false)
+    private UUID id;
+}

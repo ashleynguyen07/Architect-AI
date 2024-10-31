@@ -92,7 +92,11 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public UserUsage createUserUsage(UUID userId, UserUsageRequestDto userUsageRequestDto) throws JsonMappingException {
         UserUsage userUsage = new UserUsage();
-        objectMapper.updateValue(userUsage, userUsageRequestDto);
+        userUsage.setSubscriber(userUsageRequestDto.getSubscriber());
+        userUsage.setStartTime(userUsageRequestDto.getStartTime());
+        userUsage.setEndTime(userUsageRequestDto.getEndTime());
+        userUsage.setNoExportingImages(userUsageRequestDto.getNoExportingImages());
+        userUsage.setNoGeneratingImages(userUsageRequestDto.getNoGeneratingImages());
         ApplicationUser user = applicationUserRepository.findById(userId).orElseThrow(() -> new IllegalStateException("User not found"));
         userUsage.setUser(user);
         return userUsageRepository.save(userUsage);
@@ -101,7 +105,11 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public UserUsage updateUserUsage(UUID userId, UUID userUsageId, UserUsageRequestDto userUsageRequestDto) throws JsonMappingException {
         UserUsage userUsage = userUsageRepository.findById(userUsageId).orElseThrow(() -> new IllegalStateException("User usage not found"));
-        objectMapper.updateValue(userUsage, userUsageRequestDto);
+        userUsage.setSubscriber(userUsageRequestDto.getSubscriber());
+        userUsage.setStartTime(userUsageRequestDto.getStartTime());
+        userUsage.setEndTime(userUsageRequestDto.getEndTime());
+        userUsage.setNoExportingImages(userUsageRequestDto.getNoExportingImages());
+        userUsage.setNoGeneratingImages(userUsageRequestDto.getNoGeneratingImages());
         return userUsageRepository.save(userUsage);
     }
 
@@ -119,7 +127,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public UserTransaction createUserTransaction(UUID userId, UserTransactionRequestDto userTransactionRequestDto) throws JsonMappingException {
         UserTransaction userTransaction = new UserTransaction();
-        objectMapper.updateValue(userTransaction, userTransactionRequestDto);
+        userTransaction.setAmount(userTransactionRequestDto.getAmount());
+        userTransaction.setStatus(userTransactionRequestDto.getStatus());
+        userTransaction.setSubscriptionType(userTransactionRequestDto.getSubscriptionType());
         ApplicationUser user = applicationUserRepository.findById(userId).orElseThrow(() -> new IllegalStateException("User not found"));
         userTransaction.setUser(user);
         return userTransactionRepository.save(userTransaction);
@@ -128,7 +138,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public UserTransaction updateUserTransaction(UUID userId, UUID userTransactionId, UserTransactionRequestDto userTransactionRequestDto) throws JsonMappingException {
         UserTransaction userTransaction = userTransactionRepository.findById(userTransactionId).orElseThrow(() -> new IllegalStateException("User transaction not found"));
-        objectMapper.updateValue(userTransaction, userTransactionRequestDto);
+        userTransaction.setAmount(userTransactionRequestDto.getAmount());
+        userTransaction.setStatus(userTransactionRequestDto.getStatus());
+        userTransaction.setSubscriptionType(userTransactionRequestDto.getSubscriptionType());
         return userTransactionRepository.save(userTransaction);
     }
 

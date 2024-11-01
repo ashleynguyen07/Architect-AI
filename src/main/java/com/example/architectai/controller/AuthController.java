@@ -27,6 +27,11 @@ public class AuthController {
         return ResponseEntity.ok(authService.signUp(signUpDto));
     }
 
+    @GetMapping("/get-user")
+    public String home() {
+        return "Hello World";
+    }
+
     @PostMapping("/sign-in")
     public ResponseEntity<ApplicationUser> signIn(@RequestBody SignInDto signInDto) {
         return ResponseEntity.ok(authService.signIn(signInDto));
